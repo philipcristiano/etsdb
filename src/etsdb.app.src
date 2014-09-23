@@ -1,0 +1,12 @@
+{application, etsdb,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { etsdb_app, []}},
+  {env, []}
+ ]}.
