@@ -43,6 +43,7 @@ init([Partition]) ->
 
 % Sample command: respond to a ping
 handle_command(ping, _Sender, State) ->
+    io:format("Got a ping!~n"),
     {reply, {pong, State#state.partition}, State};
 handle_command(Message, _Sender, State) ->
     {noreply, State}.
