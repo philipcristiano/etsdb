@@ -34,4 +34,4 @@ shell: compile
 	-setcookie shell \
 	-pa deps/*/ebin \
 	-pa ebin \
-	#-eval "pager_app:start()"
+	-eval "application:ensure_all_started(etsdb)."
