@@ -45,7 +45,7 @@ list(Key) ->
     HashKey = chash:key_of(term_to_binary(Key)),
 
     %% Get the preflist...
-    NVal = 64,
+    NVal = application:get_env(riak_core, ring_size, 64),
     PrefList = riak_core_apl:get_apl(HashKey, NVal, etsdb),
 
     run_command(PrefList, list).
