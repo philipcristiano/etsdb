@@ -45,10 +45,14 @@ list(Key) ->
     HashKey = chash:key_of(term_to_binary(Key)),
 
     %% Get the preflist...
-    NVal = 1,
-    [Pref] = riak_core_apl:get_apl(HashKey, NVal, etsdb),
+    NVal = 64,
+    PrefList = riak_core_apl:get_apl(HashKey, NVal, etsdb),
 
-    %% Send the play command...
+    run_command(PrefList, list).
+
+run_command([], _Command) ->
+    ok;
+run_command([Pref| List], Command) ->
     riak_core_vnode_master:sync_command(Pref, list, etsdb_vnode_master),
-    ok.
+    run_command(List, Command).
 
