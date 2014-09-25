@@ -10,14 +10,36 @@ start_link(Ref, Socket, Transport, Opts) ->
 
 init(Ref, Socket, Transport, _Opts = []) ->
 	ok = ranch:accept_ack(Ref),
-	loop(Socket, Transport).
+	loop(Socket, Transport, <<"">>).
 
-loop(Socket, Transport) ->
-	case Transport:recv(Socket, 0, 5000) of
+loop(Socket, Transport, Buffer) ->
+	case Transport:recv(Socket, 0, 1024) of
 		{ok, Data} ->
 			Transport:send(Socket, Data),
             io:format("Got some data: ~p~n", [Data]),
-			loop(Socket, Transport);
+            {ok, Unprocessed} = handle_data(Buffer, Data),
+			loop(Socket, Transport, Unprocessed);
 		_ ->
 			ok = Transport:close(Socket)
 	end.
+
+handle_data(Buffer, NewData) ->
+    Data = <<Buffer/binary, NewData/binary>>,
+    Unprocessed = parse_data(Data),
+    {ok, Unprocessed}.
+
+parse_data(Data) ->
+    case binary:split(Data, <<"\n">>) of
+    [_] ->
+        Data;
+    [Line, Rest] ->
+        write_message(Line),
+        parse_data(Rest)
+    end.
+
+write_message(Messages) ->
+    [Metric, Value, TS] = binary:split(Messages, [<<" ">>], [global]),
+    io:format("Got record: ~p~p~p~n", [Metric, Value, TS]),
+    Key = <<Metric/binary, <<":">>/binary, TS/binary>>,
+    etsdb:write(Key, Value),
+    ok.
