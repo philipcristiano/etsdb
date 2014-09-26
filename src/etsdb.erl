@@ -1,6 +1,7 @@
 -module(etsdb).
 -export([write/3,
          run/0,
+         keys/0,
          open/1,
          write_to_db/3,
          list/1,
@@ -36,7 +37,6 @@ write(Key, TS, Value) ->
     NVal = 3,
     PrefList = riak_core_apl:get_apl(HashKey, NVal, etsdb),
 
-    io:format("Preflist: ~p~n", [PrefList]),
     Message = {write, Key, TS, Value},
     run_command(PrefList, ping),
     run_command(PrefList, Message),
@@ -59,9 +59,16 @@ scan(Key, TS1, TS2) ->
     Message = {scan, Key, TS1, TS2},
     riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master).
 
+keys() ->
+    HashKey = chash:key_of(<<"">>),
+    NVal = application:get_env(riak_core, ring_size, 64),
+    PrefList = riak_core_apl:get_apl(HashKey, NVal, etsdb),
+    Message = list_keys,
+    ordsets:union(run_command(PrefList, Message)).
+
 run_command([], _Command) ->
-    ok;
+    [];
 run_command([Pref| List], Command) ->
-    riak_core_vnode_master:sync_command(Pref, Command, etsdb_vnode_master),
-    run_command(List, Command).
+    R = riak_core_vnode_master:sync_command(Pref, Command, etsdb_vnode_master),
+    [R | run_command(List, Command)].
 
