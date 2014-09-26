@@ -5,6 +5,7 @@
          write_to_db/3,
          list/1,
          get/2,
+         scan/3,
          fold_fun/2]).
 
 
@@ -35,8 +36,9 @@ write(Key, TS, Value) ->
     NVal = 3,
     PrefList = riak_core_apl:get_apl(HashKey, NVal, etsdb),
 
-    %% Send the play command...
+    io:format("Preflist: ~p~n", [PrefList]),
     Message = {write, Key, TS, Value},
+    run_command(PrefList, ping),
     run_command(PrefList, Message),
     ok.
 
@@ -48,6 +50,14 @@ list(Key) ->
     PrefList = riak_core_apl:get_apl(HashKey, NVal, etsdb),
 
     run_command(PrefList, list).
+
+scan(Key, TS1, TS2) ->
+    HashKey = chash:key_of(term_to_binary(Key)),
+    NVal = 1,
+    [Pref] = riak_core_apl:get_apl(HashKey, NVal, etsdb),
+
+    Message = {scan, Key, TS1, TS2},
+    riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master).
 
 run_command([], _Command) ->
     ok;
