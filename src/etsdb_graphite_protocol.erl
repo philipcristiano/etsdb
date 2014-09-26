@@ -40,6 +40,5 @@ parse_data(Data) ->
 write_message(Messages) ->
     [Metric, Value, TS] = binary:split(Messages, [<<" ">>], [global]),
     io:format("Got record: ~p~p~p~n", [Metric, Value, TS]),
-    Key = <<Metric/binary, <<":">>/binary, TS/binary>>,
-    etsdb:write(Key, Value),
+    etsdb:write(Metric, TS, Value),
     ok.

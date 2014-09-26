@@ -1,5 +1,5 @@
 -module(etsdb).
--export([write/2,
+-export([write/3,
          run/0,
          open/1,
          write_to_db/3,
@@ -28,7 +28,7 @@ fold_fun({Key, Value}, Acc) ->
     io:format("Found one! ~p => ~p ~n", [Key, Value]),
     Acc.
 
-write(Key, Value) ->
+write(Key, TS, Value) ->
     HashKey = chash:key_of(term_to_binary(Key)),
 
     %% Get the preflist...
@@ -37,8 +37,8 @@ write(Key, Value) ->
 
     %% Send the play command...
     riak_core_vnode_master:sync_command(Pref, ping, etsdb_vnode_master),
-    Message = {write, Key, Value},
     riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master),
+    Message = {write, Key, TS, Value},
     ok.
 
 list(Key) ->

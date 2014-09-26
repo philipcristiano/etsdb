@@ -49,6 +49,10 @@ handle_command(ping, _Sender, State) ->
 handle_command({write, Key, Value}, _Sender, State=#state{dbref=DBRef}) ->
     etsdb:write_to_db(DBRef, Key, Value),
     {reply, {done, State#state.partition}, State};
+handle_command({write, Metric, TS, Value}, _Sender, State=#state{dbref=DBRef}) ->
+    Key = <<Metric/binary, <<":">>/binary, TS/binary>>,
+    etsdb:write_to_db(DBRef, Key, Value),
+    {reply, {done, State#state.partition}, State};
 handle_command(list, _Sender, State=#state{dbref=DBRef})->
     eleveldb:fold(DBRef, fun etsdb:fold_fun/2, 0, []),
     {reply, {done, State#state.partition}, State};
