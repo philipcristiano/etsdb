@@ -32,13 +32,12 @@ write(Key, TS, Value) ->
     HashKey = chash:key_of(term_to_binary(Key)),
 
     %% Get the preflist...
-    NVal = 1,
-    [Pref] = riak_core_apl:get_apl(HashKey, NVal, etsdb),
+    NVal = 3,
+    PrefList = riak_core_apl:get_apl(HashKey, NVal, etsdb),
 
     %% Send the play command...
-    riak_core_vnode_master:sync_command(Pref, ping, etsdb_vnode_master),
-    riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master),
     Message = {write, Key, TS, Value},
+    run_command(PrefList, Message),
     ok.
 
 list(Key) ->
