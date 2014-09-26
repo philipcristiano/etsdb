@@ -53,6 +53,6 @@ list(Key) ->
 run_command([], _Command) ->
     ok;
 run_command([Pref| List], Command) ->
-    riak_core_vnode_master:sync_command(Pref, list, etsdb_vnode_master),
+    riak_core_vnode_master:sync_command(Pref, Command, etsdb_vnode_master),
     run_command(List, Command).
 
