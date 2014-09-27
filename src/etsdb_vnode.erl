@@ -41,7 +41,8 @@ start_vnode(I) ->
     riak_core_vnode_master:get_vnode_pid(I, ?MODULE).
 
 init([Partition]) ->
-    {ok, DBRef} = etsdb:open(string:concat("data/", erlang:integer_to_list(Partition))),
+    DataDir = application:get_env(etsdb, data_dir, "data/"),
+    {ok, DBRef} = etsdb:open(string:concat(DataDir, erlang:integer_to_list(Partition))),
     {ok, #state{partition=Partition, dbref=DBRef}}.
 
 % Sample command: respond to a ping
@@ -131,5 +132,4 @@ all_keys(Key, Set) ->
                 [M] -> M;
                 M -> M
     end,
-    io:format("Add element ~p~n", [Metric]),
     ordsets:add_element(Metric, Set).

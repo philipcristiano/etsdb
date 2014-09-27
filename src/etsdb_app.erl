@@ -13,8 +13,9 @@ start(_StartType, _StartArgs) ->
     {ok, Pid} = etsdb_sup:start_link(),
     ok = riak_core:register([{vnode_module, etsdb_vnode}]),
     ok = riak_core_node_watcher:service_up(etsdb, self()),
+    GPPORT = application:get_env(etsdb, graphite_port, 2003),
     {ok, _} = ranch:start_listener(graphite_input, 1,
-        ranch_tcp, [{port, 2003}], etsdb_graphite_protocol, []),
+        ranch_tcp, [{port, GPPORT}], etsdb_graphite_protocol, []),
     start_cowboy(),
     {ok, Pid}.
 
@@ -28,6 +29,7 @@ start_cowboy() ->
                {"/metrics", etsdb_handler_metrics, []}
         ]}
     ]),
-    cowboy:start_http(etsdb_http_listener, 100, [{port, 8080}],
+    CBHTTP = application:get_env(etsdb, http_port, 8080),
+    cowboy:start_http(etsdb_http_listener, 100, [{port, CBHTTP}],
         [{env, [{dispatch, Dispatch}]}]
     ).

@@ -34,4 +34,14 @@ shell: compile
 	-setcookie shell \
 	-pa deps/*/ebin \
 	-pa ebin \
+	-config etsdb \
+	-eval "application:ensure_all_started(etsdb)."
+
+shell_2: compile
+	erl -pag ebin \
+	-name etsdb_2@127.0.0.1 \
+	-setcookie shell \
+	-pa deps/*/ebin \
+	-pa ebin \
+	-config etsdb_2 \
 	-eval "application:ensure_all_started(etsdb)."
