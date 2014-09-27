@@ -8,9 +8,10 @@ init(_Type, Req, []) ->
 	{ok, Req, undefined}.
 
 handle(Req, State) ->
+    Keys = etsdb:keys(),
 	{ok, Req2} = cowboy_req:reply(200, [
-		{<<"content-type">>, <<"text/plain">>}
-	], <<"Hello world!">>, Req),
+		{<<"content-type">>, <<"application/json">>}
+	], jsx:encode(Keys), Req),
 	{ok, Req2, State}.
 
 terminate(_Reason, _Req, _State) ->

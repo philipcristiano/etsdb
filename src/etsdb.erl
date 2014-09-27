@@ -64,7 +64,7 @@ keys() ->
     NVal = application:get_env(riak_core, ring_size, 64),
     PrefList = riak_core_apl:get_apl(HashKey, NVal, etsdb),
     Message = list_keys,
-    ordsets:union(run_command(PrefList, Message)).
+    ordsets:to_list(ordsets:union(run_command(PrefList, Message))).
 
 run_command([], _Command) ->
     [];
