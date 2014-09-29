@@ -5,6 +5,7 @@ deps
 *.plt
 data/
 data_2/
+data_3/
 /ebin/
 log/
 erl_crash.dump

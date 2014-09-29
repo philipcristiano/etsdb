@@ -34,7 +34,8 @@
          handle_coverage/4,
          handle_exit/3]).
 
--record(state, {partition, dbref}).
+-record(state, {partition, dbref, datadir}).
+-include("deps/riak_core/include/riak_core_vnode.hrl").
 
 %% API
 start_vnode(I) ->
@@ -42,8 +43,9 @@ start_vnode(I) ->
 
 init([Partition]) ->
     DataDir = application:get_env(etsdb, data_dir, "data/"),
-    {ok, DBRef} = etsdb:open(string:concat(DataDir, erlang:integer_to_list(Partition))),
-    {ok, #state{partition=Partition, dbref=DBRef}}.
+    LDBDir = string:concat(DataDir, erlang:integer_to_list(Partition)),
+    {ok, DBRef} = etsdb:open(LDBDir),
+    {ok, #state{partition=Partition, dbref=DBRef, datadir=LDBDir}}.
 
 % Sample command: respond to a ping
 handle_command(ping, _Sender, State) ->
@@ -73,31 +75,53 @@ handle_command({scan, Metric, TS1, TS2}, _Sender, State=#state{dbref=DBRef}) ->
         end,
     ForwardAcc = lists:reverse(Acc),
     {reply, {ok, ForwardAcc}, State};
-handle_command(Message, _Sender, State) ->
+handle_command(_Message, _Sender, State) ->
     {noreply, State}.
 
+handle_handoff_command(?FOLD_REQ{foldfun = Fun, acc0=Acc0},
+                       _Sender, State=#state{dbref=DBRef}) ->
+    io:format("FOLDREQ ~p~n", [State]),
+    F = fun({Key,Val}, Acc) -> Fun(Key, Val, Acc) end,
+    Acc = eleveldb:fold(DBRef, F, Acc0, []),
+    %% Acc = dict:fold(Fun, Acc0, State#state.store),
+    {reply, Acc, State};
 handle_handoff_command(_Message, _Sender, State) ->
+    io:format("Handoff command ~p~n", [_Message]),
     {noreply, State}.
 
 handoff_starting(_TargetNode, State) ->
+    io:format("Handoff starting ~p~n", [_TargetNode]),
     {true, State}.
 
 handoff_cancelled(State) ->
+    io:format("Handoff cancelled ~p~n", [State]),
     {ok, State}.
 
 handoff_finished(_TargetNode, State) ->
+    io:format("Handoff finished ~p~n", [State]),
     {ok, State}.
 
-handle_handoff_data(_Data, State) ->
+handle_handoff_data(_Data, State=#state{dbref=DBRef}) ->
+    io:format("Recieved handoff item ~p~n", [_Data]),
+    {Key, Value} = erlang:binary_to_term(_Data),
+    etsdb:write_to_db(DBRef, Key, Value),
     {reply, ok, State}.
 
 encode_handoff_item(_ObjectName, _ObjectValue) ->
-    <<>>.
+    io:format("Handoff item ~p|~p~n", [_ObjectName,_ObjectValue]),
+    Data = erlang:term_to_binary({_ObjectName, _ObjectValue}),
+    Data.
 
-is_empty(State) ->
-    {true, State}.
+is_empty(State=#state{dbref=DBRef}) ->
+    io:format("Checking is empty~n"),
+    Empty = eleveldb:is_empty(DBRef),
+    io:format("Checking is empty: ~p~n", [Empty]),
+    {Empty, State}.
 
-delete(State) ->
+delete(State=#state{dbref=DBRef, datadir=DataDir}) ->
+    io:format("Destroying!~n"),
+    eleveldb:close(DBRef),
+    eleveldb:destroy(DataDir, []),
     {ok, State}.
 
 handle_coverage(_Req, _KeySpaces, _Sender, State) ->

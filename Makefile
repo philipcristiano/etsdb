@@ -45,3 +45,12 @@ shell_2: compile
 	-pa ebin \
 	-config etsdb_2 \
 	-eval "application:ensure_all_started(etsdb)."
+
+shell_3: compile
+	erl -pag ebin \
+	-name etsdb_3@127.0.0.1 \
+	-setcookie shell \
+	-pa deps/*/ebin \
+	-pa ebin \
+	-config etsdb_3 \
+	-eval "application:ensure_all_started(etsdb)."
