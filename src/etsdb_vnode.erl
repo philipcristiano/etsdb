@@ -87,7 +87,7 @@ handle_handoff_command(?FOLD_REQ{foldfun = Fun, acc0=Acc0},
     {reply, Acc, State};
 handle_handoff_command(_Message, _Sender, State) ->
     io:format("Handoff command ~p~n", [_Message]),
-    {noreply, State}.
+    {forward, State}.
 
 handoff_starting(_TargetNode, State) ->
     io:format("Handoff starting ~p~n", [_TargetNode]),
