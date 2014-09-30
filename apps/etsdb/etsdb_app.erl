@@ -10,6 +10,7 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
+    ok = mkdirs(application:get_env(etsdb, data_dir, "data/")),
     {ok, Pid} = etsdb_sup:start_link(),
     ok = riak_core:register([{vnode_module, etsdb_vnode}]),
     ok = riak_core_node_watcher:service_up(etsdb, self()),
@@ -20,6 +21,12 @@ start(_StartType, _StartArgs) ->
     {ok, Pid}.
 
 stop(_State) ->
+    ok.
+
+mkdirs(Path) ->
+    file:make_dir(Path),
+    file:make_dir(Path ++ "/cluster_meta"),
+    file:make_dir(Path ++ "/ring"),
     ok.
 
 start_cowboy() ->

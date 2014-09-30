@@ -9,3 +9,4 @@ data_3/
 /ebin/
 log/
 erl_crash.dump
+_rel/
