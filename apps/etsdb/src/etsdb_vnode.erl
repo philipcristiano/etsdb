@@ -35,7 +35,7 @@
          handle_exit/3]).
 
 -record(state, {partition, dbref, datadir}).
--include("deps/riak_core/include/riak_core_vnode.hrl").
+-include_lib("riak_core/include/riak_core_vnode.hrl").
 
 %% API
 start_vnode(I) ->
