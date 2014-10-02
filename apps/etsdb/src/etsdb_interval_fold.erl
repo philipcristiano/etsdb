@@ -9,10 +9,10 @@ first_fold(Interval) ->
     end.
 
 fold_bucket({K, V}, [{PK, PV}| Acc], Bucket) ->
-    NewBucket = K div Bucket,
+    NewBucket = K div Bucket * Bucket,
     if
         NewBucket == PK -> [{PK, PV}| Acc];
-        NewBucket /= PK -> [{K,V}| [{PK, PV}| Acc]]
+        NewBucket /= PK -> [{K div Bucket * Bucket, V}| [{PK, PV}| Acc]]
     end;
 fold_bucket({K, V}, [], Bucket) ->
-    [{K div Bucket,V}].
+    [{K div Bucket * Bucket,V}].
