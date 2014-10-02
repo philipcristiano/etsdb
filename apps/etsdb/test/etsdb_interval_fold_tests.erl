@@ -15,7 +15,8 @@ interval_fold_test_() ->
      spawn,
      fun start/0,
      fun stop/1,
-     [fun first_fold/1]}.
+     [fun first_fold/1,
+      fun same_bucket/1]}.
 
 start() ->
     Ref = make_ref(),
@@ -26,5 +27,11 @@ stop(_Ref) ->
 
 first_fold(_Ref) ->
     F = ?MUT:first_fold(60),
-    Acc = F({<<"1">>, 10}, []),
-    [?_assertEqual([10], Acc)].
+    Acc = F({<<"1">>, <<"10">>}, []),
+    [?_assertEqual([{0, 10}], Acc)].
+
+same_bucket(_Ref) ->
+    F = ?MUT:first_fold(60),
+    Acc = F({<<"1">>, <<"10">>}, []),
+    Acc2 = F({<<"2">>, <<"11">>}, Acc),
+    [?_assertEqual([{0, 10}], Acc2)].
