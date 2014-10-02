@@ -69,6 +69,7 @@ keys() ->
 run_command([], _Command) ->
     [];
 run_command([Pref| List], Command) ->
+    io:format("Sending command to: ~p~n", [Pref]),
     R = riak_core_vnode_master:sync_command(Pref, Command, etsdb_vnode_master),
     [R | run_command(List, Command)].
 
