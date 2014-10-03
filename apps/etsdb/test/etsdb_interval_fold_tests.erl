@@ -28,19 +28,19 @@ stop(_Ref) ->
 
 first_fold(_Ref) ->
     F = ?MUT:first_fold(60),
-    Acc = F({<<"1">>, <<"10">>}, []),
+    Acc = lists:foldl(F, [], [{<<"1">>, <<"10">>}]),
     [?_assertEqual([{0, 10}], Acc)].
 
 same_bucket(_Ref) ->
     F = ?MUT:first_fold(60),
-    Acc = F({<<"1">>, <<"10">>}, []),
-    Acc2 = F({<<"2">>, <<"11">>}, Acc),
-    [?_assertEqual([{0, 10}], Acc2)].
+    Acc = lists:foldl(F, [], [{<<"1">>, <<"10">>},
+                              {<<"2">>, <<"11">>}]),
+    [?_assertEqual([{0, 10}], Acc)].
 
 multiple_buckets(_Ref) ->
     F = ?MUT:first_fold(60),
-    Acc = F({<<"1">>, <<"10">>}, []),
-    Acc2 = F({<<"2">>, <<"11">>}, Acc),
-    Acc3 = F({<<"61">>, <<"12">>}, Acc2),
-    Acc4 = F({<<"62">>, <<"13">>}, Acc3),
-    [?_assertEqual([{60, 12}, {0, 10}], Acc4)].
+    Acc = lists:foldl(F, [], [{<<"1">>, <<"10">>},
+                              {<<"2">>, <<"11">>},
+                              {<<"61">>, <<"12">>},
+                              {<<"62">>, <<"13">>}]),
+    [?_assertEqual([{60, 12}, {0, 10}], Acc)].
