@@ -20,6 +20,7 @@
 -export([start_vnode/1,
          all_keys/2,
          init/1,
+         fold_until/2,
          f_scan_until/2,
          terminate/2,
          handle_command/3,
@@ -75,6 +76,20 @@ handle_command({scan, Metric, TS1, TS2}, _Sender, State=#state{dbref=DBRef}) ->
         end,
     ForwardAcc = lists:reverse(Acc),
     {reply, {ok, ForwardAcc}, State};
+
+handle_command({data, Metric, TS1, TS2}, _Sender, State=#state{dbref=DBRef}) ->
+    Key = <<Metric/binary, <<":">>/binary, TS1/binary>>,
+    Agg = etsdb_interval_fold:first_fold(60),
+    Acc =
+        try
+            eleveldb:fold(DBRef, etsdb_vnode:fold_until(TS2, Agg), [], [{first_key, Key}])
+        catch
+            {done, Val} -> Val
+        end,
+    ForwardAcc = lists:reverse(Acc),
+    {reply, {ok, ForwardAcc}, State};
+
+
 handle_command(_Message, _Sender, State) ->
     {noreply, State}.
 
@@ -135,6 +150,17 @@ terminate(_Reason, _State) ->
 
 
 %% Internal API
+
+fold_until(EndTS, Callback) ->
+    fun ({Key, Value}, Acc)->
+       [_Metric, TS] = binary:split(Key, <<":">>, []),
+       case TS > EndTS of
+            true ->
+                throw({done, Acc});
+            false ->
+                Callback({TS, Value}, Acc)
+       end
+    end.
 
 f_scan_until(EndTS, Callback) ->
     fun ({Key, Value}, Acc)->

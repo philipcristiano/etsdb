@@ -33,7 +33,8 @@ start_cowboy() ->
     Dispatch = cowboy_router:compile([
         {'_', [{"/", etsdb_handler_metrics, []},
                {"/static/[...]", cowboy_static, {dir, "priv/static/"}},
-               {"/metrics", etsdb_handler_metrics, []}
+               {"/metrics", etsdb_handler_metrics, []},
+               {"/metrics/:metric/:ts1/:ts2", etsdb_handler_metric_data, []}
         ]}
     ]),
     CBHTTP = application:get_env(etsdb, http_port, 8080),
