@@ -15,10 +15,10 @@ init(Ref, Socket, Transport, _Opts = []) ->
 loop(Socket, Transport, Buffer) ->
 	case Transport:recv(Socket, 0, 1024) of
 		{ok, Data} ->
-            io:format("Got some data: ~p~n", [Data]),
             {ok, Unprocessed} = handle_data(Buffer, Data),
 			loop(Socket, Transport, Unprocessed);
-		_ ->
+		A ->
+            io:format("Graphite huh? ~p~n", [A]),
 			ok = Transport:close(Socket)
 	end.
 
@@ -38,6 +38,5 @@ parse_data(Data) ->
 
 write_message(Messages) ->
     [Metric, Value, TS] = binary:split(Messages, [<<" ">>], [global]),
-    io:format("Got record: ~p~p~p~n", [Metric, Value, TS]),
     etsdb:write(Metric, TS, Value),
     ok.

@@ -87,4 +87,3 @@ run_command([], _Command) ->
 run_command([Pref| List], Command) ->
     R = riak_core_vnode_master:sync_command(Pref, Command, etsdb_vnode_master),
     [R | run_command(List, Command)].
-

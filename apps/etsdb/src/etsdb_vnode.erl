@@ -161,8 +161,6 @@ terminate(_Reason, _State) ->
 fold_until(EncodedEndTS, Callback) ->
     fun ({Key, Value}, Acc)->
        [_Metric, EncodedTS] = binary:split(Key, <<":">>, []),
-       io:format("Here is ~p ~n", [Key]),
-       io:format("Waiting for ~p ~n", [EncodedEndTS]),
        TS = decode_ts(EncodedTS),
        case EncodedTS > EncodedEndTS of
             true ->
