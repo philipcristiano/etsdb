@@ -50,7 +50,7 @@ list(Key) ->
     NVal = application:get_env(riak_core, ring_size, 64),
     PrefList = riak_core_apl:get_apl(HashKey, NVal, etsdb),
 
-    run_command(PrefList, list).
+    riak_core_vnode_master:command(PrefList, list, etsdb_vnode_master).
 
 scan(Key, TS1, TS2) ->
     HashKey = chash:key_of(term_to_binary(Key)),
