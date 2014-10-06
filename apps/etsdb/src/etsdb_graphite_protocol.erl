@@ -15,7 +15,6 @@ init(Ref, Socket, Transport, _Opts = []) ->
 loop(Socket, Transport, Buffer) ->
 	case Transport:recv(Socket, 0, 1024) of
 		{ok, Data} ->
-			Transport:send(Socket, Data),
             io:format("Got some data: ~p~n", [Data]),
             {ok, Unprocessed} = handle_data(Buffer, Data),
 			loop(Socket, Transport, Unprocessed);
