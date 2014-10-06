@@ -20,6 +20,8 @@
 -export([start_vnode/1,
          all_keys/2,
          init/1,
+         encode_ts/1,
+         pad_to4/1,
          fold_until/2,
          f_scan_until/2,
          terminate/2,
@@ -56,7 +58,8 @@ handle_command({write, Key, Value}, _Sender, State=#state{dbref=DBRef}) ->
     etsdb:write_to_db(DBRef, Key, Value),
     {reply, {done, State#state.partition}, State};
 handle_command({write, Metric, TS, Value}, _Sender, State=#state{dbref=DBRef}) ->
-    Key = <<Metric/binary, <<":">>/binary, TS/binary>>,
+    EncodedTS = encode_ts(TS),
+    Key = <<Metric/binary, <<":">>/binary, EncodedTS/binary>>,
     etsdb:write_to_db(DBRef, Key, Value),
     {reply, {done, State#state.partition}, State};
 handle_command(list, _Sender, State=#state{dbref=DBRef})->
@@ -66,11 +69,12 @@ handle_command(list_keys, _Sender, State=#state{dbref=DBRef})->
     Keys = eleveldb:fold_keys(DBRef, fun etsdb_vnode:all_keys/2, ordsets:new(), []),
     {reply, Keys, State};
 handle_command({scan, Metric, TS1, TS2}, _Sender, State=#state{dbref=DBRef}) ->
-    Key = <<Metric/binary, <<":">>/binary, TS1/binary>>,
+    EncodedTS1 = encode_ts(TS1),
+    Key = <<Metric/binary, <<":">>/binary, EncodedTS1/binary>>,
 
     Acc =
         try
-            eleveldb:fold(DBRef, etsdb_vnode:f_scan_until(TS2, fun list_callback/4), [], [{first_key, Key}])
+            eleveldb:fold(DBRef, etsdb_vnode:f_scan_until(encode_ts(TS2), fun list_callback/4), [], [{first_key, Key}])
         catch
             {done, Val} -> Val
         end,
@@ -78,11 +82,12 @@ handle_command({scan, Metric, TS1, TS2}, _Sender, State=#state{dbref=DBRef}) ->
     {reply, {ok, ForwardAcc}, State};
 
 handle_command({data, Metric, TS1, TS2}, _Sender, State=#state{dbref=DBRef}) ->
-    Key = <<Metric/binary, <<":">>/binary, TS1/binary>>,
+    EncodedTS1 = encode_ts(TS1),
+    Key = <<Metric/binary, <<":">>/binary, EncodedTS1/binary>>,
     Agg = etsdb_interval_fold:first_fold(60),
     Acc =
         try
-            eleveldb:fold(DBRef, etsdb_vnode:fold_until(TS2, Agg), [], [{first_key, Key}])
+            eleveldb:fold(DBRef, etsdb_vnode:fold_until(encode_ts(TS2), Agg), [], [{first_key, Key}])
         catch
             {done, Val} -> Val
         end,
@@ -151,10 +156,13 @@ terminate(_Reason, _State) ->
 
 %% Internal API
 
-fold_until(EndTS, Callback) ->
+fold_until(EncodedEndTS, Callback) ->
     fun ({Key, Value}, Acc)->
-       [_Metric, TS] = binary:split(Key, <<":">>, []),
-       case TS > EndTS of
+       [_Metric, EncodedTS] = binary:split(Key, <<":">>, []),
+       io:format("Here is ~p ~n", [Key]),
+       io:format("Waiting for ~p ~n", [EncodedEndTS]),
+       TS = decode_ts(EncodedTS),
+       case EncodedTS > EncodedEndTS of
             true ->
                 throw({done, Acc});
             false ->
@@ -183,3 +191,16 @@ all_keys(Key, Set) ->
                 M -> M
     end,
     ordsets:add_element(Metric, Set).
+
+pad_to4(Bin) ->
+    case size(Bin) of
+        4 -> Bin;
+        _ -> Pad = size(Bin) rem 4,
+             <<0:((4-Pad)*8), Bin/binary>>
+    end.
+
+encode_ts(TS) ->
+    pad_to4(binary:encode_unsigned(erlang:binary_to_integer(TS))).
+
+decode_ts(TS) ->
+    erlang:integer_to_binary(binary:decode_unsigned(TS)).
