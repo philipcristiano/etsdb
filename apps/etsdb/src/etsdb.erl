@@ -1,6 +1,7 @@
 -module(etsdb).
 -export([write/3,
          data/3,
+         data/4,
          run/0,
          keys/0,
          open/1,
@@ -60,11 +61,14 @@ scan(Key, TS1, TS2) ->
     riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master).
 
 data(Key, Start, Stop) ->
+    data(Key, Start, Stop, 60).
+
+data(Key, Start, Stop, BucketSize) ->
     HashKey = chash:key_of(term_to_binary(Key)),
     NVal = 1,
     [Pref] = riak_core_apl:get_apl(HashKey, NVal, etsdb),
 
-    Message = {data, Key, Start, Stop},
+    Message = {data, Key, Start, Stop, [{bucket_size, BucketSize}]},
     riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master).
 
 

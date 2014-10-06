@@ -82,9 +82,11 @@ handle_command({scan, Metric, TS1, TS2}, _Sender, State=#state{dbref=DBRef}) ->
     {reply, {ok, ForwardAcc}, State};
 
 handle_command({data, Metric, TS1, TS2}, _Sender, State=#state{dbref=DBRef}) ->
+    handle_command({data, Metric, TS1, TS2, []}, _Sender, State);
+handle_command({data, Metric, TS1, TS2, Opts}, _Sender, State=#state{dbref=DBRef}) ->
     EncodedTS1 = encode_ts(TS1),
     Key = <<Metric/binary, <<":">>/binary, EncodedTS1/binary>>,
-    Agg = etsdb_interval_fold:first_fold(60),
+    Agg = etsdb_interval_fold:first_fold(proplists:get_value(bucket_size, Opts, 60)),
     Acc =
         try
             eleveldb:fold(DBRef, etsdb_vnode:fold_until(encode_ts(TS2), Agg), [], [{first_key, Key}])
