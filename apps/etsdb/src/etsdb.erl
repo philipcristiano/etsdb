@@ -2,6 +2,7 @@
 -export([write/3,
          data/3,
          data/4,
+         data_noop/4,
          run/0,
          keys/0,
          open/1,
@@ -72,6 +73,13 @@ data(Key, Start, Stop, BucketSize) ->
     Message = {data, Key, Start, Stop, [{bucket_size, BucketSize}]},
     riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master).
 
+data_noop(Key, Start, Stop, BucketSize) ->
+    HashKey = chash:key_of(term_to_binary(Key)),
+    NVal = 1,
+    [Pref] = riak_core_apl:get_apl(HashKey, NVal, etsdb),
+
+    Message = {data_noop, Key, Start, Stop, [{bucket_size, BucketSize}]},
+    riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master).
 
 keys() ->
     HashKey = chash:key_of(<<"">>),
