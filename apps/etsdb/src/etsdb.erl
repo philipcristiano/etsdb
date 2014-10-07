@@ -22,7 +22,7 @@ open(Path) ->
     eleveldb:open(Path, [{create_if_missing, true}]).
 
 write_to_db(Ref, Key, Value) ->
-    eleveldb:write(Ref, [{put, Key, Value}], [{sync, true}]).
+    eleveldb:write(Ref, [{put, Key, Value}], [{sync, false}]).
 
 get(Ref, Key) ->
     eleveldb:get(Ref, Key, []).
