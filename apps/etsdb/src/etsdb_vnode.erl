@@ -119,7 +119,6 @@ handle_handoff_command(?FOLD_REQ{foldfun = Fun, acc0=Acc0},
     %% Acc = dict:fold(Fun, Acc0, State#state.store),
     {reply, Acc, State};
 handle_handoff_command(_Message, _Sender, State) ->
-    io:format("Handoff command ~p~n", [_Message]),
     {forward, State}.
 
 handoff_starting(_TargetNode, State) ->
@@ -135,13 +134,11 @@ handoff_finished(_TargetNode, State) ->
     {ok, State}.
 
 handle_handoff_data(_Data, State=#state{dbref=DBRef}) ->
-    io:format("Recieved handoff item ~p~n", [_Data]),
     {Key, Value} = erlang:binary_to_term(_Data),
     etsdb:write_to_db(DBRef, Key, Value),
     {reply, ok, State}.
 
 encode_handoff_item(_ObjectName, _ObjectValue) ->
-    io:format("Handoff item ~p|~p~n", [_ObjectName,_ObjectValue]),
     Data = erlang:term_to_binary({_ObjectName, _ObjectValue}),
     Data.
 
