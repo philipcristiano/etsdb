@@ -50,3 +50,23 @@ multiple_buckets(_Ref) ->
                               {61, 12},
                               {62, 13}]),
     [?_assertEqual([{60, 12}, {0, 10}], Acc)].
+
+
+min_first_test() ->
+    {F, Acc} = etsdb_interval_fold:online_fold(min, 60),
+    EndAcc = lists:foldl(F, Acc, [{1, 10.0}, {eoi, eoi}]),
+    ?assertEqual([{0, 10.0}], EndAcc).
+
+min_two_items_test() ->
+    {F, Acc} = etsdb_interval_fold:online_fold(min, 60),
+    EndAcc = lists:foldl(F, Acc, [{1, 10.0}, {2, 5.0}, {eoi, eoi}]),
+    ?assertEqual([{0, 5.0}], EndAcc).
+
+min_buckets_test() ->
+    {F, Acc} = etsdb_interval_fold:online_fold(min, 60),
+    EndAcc = lists:foldl(F, Acc, [{1, 10.0},
+                                  {2, 5.0},
+                                  {60, 1.0},
+                                  {61, 2.0},
+                                  {eoi, eoi}]),
+    ?assertEqual([{60, 1.0}, {0, 5.0}], EndAcc).
