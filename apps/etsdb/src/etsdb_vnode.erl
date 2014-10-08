@@ -20,7 +20,6 @@
 -export([start_vnode/1,
          all_keys/2,
          init/1,
-         pad_to4/1,
          fold_until/3,
          f_scan_until/2,
          terminate/2,

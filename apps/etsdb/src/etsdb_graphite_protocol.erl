@@ -38,5 +38,5 @@ parse_data(Data) ->
 
 write_message(Messages) ->
     [Metric, Value, TS] = binary:split(Messages, [<<" ">>], [global]),
-    etsdb:write(Metric, TS, Value),
+    etsdb:write(Metric, erlang:binary_to_integer(TS), etsdb_numbers:to_float(Value)),
     ok.

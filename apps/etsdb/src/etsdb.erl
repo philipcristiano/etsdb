@@ -36,7 +36,7 @@ fold_fun({Key, Value}, Acc) ->
 write(Key, TS, Value) when is_binary(TS) ->
     write(Key, binary_to_integer(TS), Value);
 write(Key, TS, Value) when is_binary(Value) ->
-    write(Key, TS, binary_to_integer(Value));
+    write(Key, TS, etsdb_numbers:to_float(Value));
 write(Key, TS, Value) ->
     HashKey = chash:key_of(term_to_binary(Key)),
 
