@@ -100,10 +100,8 @@ keys() ->
     Message = list_keys,
     ordsets:to_list(ordsets:union(run_command(PrefList, Message))).
 
-
-
 run_command([], _Command) ->
     [];
 run_command([Pref| List], Command) ->
-    R = riak_core_vnode_master:sync_command(Pref, Command, etsdb_vnode_master),
+    R = riak_core_vnode_master:sync_spawn_command(Pref, Command, etsdb_vnode_master),
     [R | run_command(List, Command)].
