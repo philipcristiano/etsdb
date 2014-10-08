@@ -23,21 +23,41 @@ online_fold(Alg, Interval) ->
     case Alg of
         avg -> {fun({K,V}, Acc) ->
                    fold_avg({K, V}, Acc, Interval)
-                end, #avg_acc{}};
+                end, #avg_acc{n=1}};
         min -> {fun({K,V}, Acc) ->
                    fold_min({K, V}, Acc, Interval)
                 end, []}
     end.
 
-fold_avg({eoi, eoi}, #avg_acc{bucket=undefined, rest=Rest}, _Bucket) ->
+fold_avg({eoi, eoi}, Acc=#avg_acc{bucket=undefined, rest=Rest}, _Bucket) ->
     Rest;
-fold_avg({eoi, eoi}, #avg_acc{bucket=CurBucket, val=Val,rest=undefined}, _Bucket) ->
+fold_avg({eoi, eoi}, Acc=#avg_acc{bucket=CurBucket, val=Val,rest=undefined}, _Bucket) ->
     [{CurBucket, Val}];
-fold_avg({eoi, eoi}, #avg_acc{bucket=CurBucket, val=Val,rest=Rest}, _Bucket) ->
+fold_avg({eoi, eoi}, Acc=#avg_acc{bucket=CurBucket, val=Val,rest=Rest}, _Bucket) ->
     [{CurBucket, Val}| Rest];
-fold_avg({K, V}, #avg_acc{bucket=undefined, n=undefined, val=undefined, rest=undefined}, Bucket) ->
+fold_avg({K, V}, #avg_acc{bucket=undefined, n=1, val=undefined, rest=undefined}, Bucket) ->
     NewBucket = K div Bucket * Bucket,
-    #avg_acc{bucket=NewBucket, n=1, val=V, rest=[]}.
+    #avg_acc{bucket=NewBucket, n=2, val=V, rest=[]};
+fold_avg({K, V}, Acc=#avg_acc{bucket=CurBucket, n=N, val=Val, rest=Rest}, Bucket) ->
+    NewBucket = K div Bucket * Bucket,
+    if
+        NewBucket == CurBucket ->
+            case N of
+                2 -> #avg_acc{bucket=CurBucket,
+                     n=N+1,
+                     val=(Val + V) /N,
+                     rest=Rest};
+                _ -> #avg_acc{bucket=CurBucket,
+                     n=N+1,
+                     val=((1/N) * V) + ((N-1)/N)* Val,
+                     rest=Rest}
+            end;
+        NewBucket /= CurBucket ->
+            #avg_acc{bucket=NewBucket,
+            n=2,
+            val=V,
+            rest=[{CurBucket, Val}| Rest]}
+    end.
 
 fold_min({eoi, eoi}, Acc, _Bucket) ->
     Acc;
