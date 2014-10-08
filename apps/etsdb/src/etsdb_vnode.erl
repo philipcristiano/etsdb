@@ -53,17 +53,24 @@ handle_command(ping, _Sender, State) ->
     io:format("Got a ping!~n"),
     {reply, {pong, State#state.partition}, State};
 handle_command({write, Metric, TS, Value}, _Sender, State=#state{dbref=DBRef}) ->
-    Key = <<Metric/binary, <<":">>/binary, TS:32/integer>>,
+    Key = <<"m:", Metric/binary, <<":">>/binary, TS:32/integer>>,
+    KeyKey = <<"k:", Metric/binary>>,
     etsdb:write_to_db(DBRef, Key, erlang:term_to_binary(Value)),
+    etsdb:write_to_db(DBRef, KeyKey, <<>>),
     {reply, {done, State#state.partition}, State};
 handle_command(list, _Sender, State=#state{dbref=DBRef})->
     eleveldb:fold(DBRef, fun etsdb:fold_fun/2, 0, []),
     {reply, {done, State#state.partition}, State};
 handle_command(list_keys, _Sender, State=#state{dbref=DBRef})->
-    Keys = eleveldb:fold_keys(DBRef, fun etsdb_vnode:all_keys/2, ordsets:new(), []),
+
+    Keys = try
+            eleveldb:fold_keys(DBRef, fun etsdb_vnode:all_keys/2, ordsets:new(), [{first_key, <<"k:">>}])
+        catch
+            {done, Val} -> Val
+        end,
     {reply, Keys, State};
 handle_command({scan, Metric, TS1, TS2}, _Sender, State=#state{dbref=DBRef}) ->
-    Key = <<Metric/binary, <<":">>/binary, TS1:32/integer>>,
+    Key = <<"m:", Metric/binary, <<":">>/binary, TS1:32/integer>>,
 
     Acc =
         try
@@ -77,7 +84,7 @@ handle_command({scan, Metric, TS1, TS2}, _Sender, State=#state{dbref=DBRef}) ->
 handle_command({data, Metric, TS1, TS2}, _Sender, State) ->
     handle_command({data, Metric, TS1, TS2, []}, _Sender, State);
 handle_command({data, Metric, TS1, TS2, Opts}, _Sender, State=#state{dbref=DBRef}) ->
-    Key = <<Metric/binary, <<":">>/binary, TS1:32/integer>>,
+    Key = <<"m:", Metric/binary, <<":">>/binary, TS1:32/integer>>,
     Agg = etsdb_interval_fold:first_fold(proplists:get_value(bucket_size, Opts, 60)),
     Acc =
         try
@@ -89,7 +96,7 @@ handle_command({data, Metric, TS1, TS2, Opts}, _Sender, State=#state{dbref=DBRef
     {reply, {ok, ForwardAcc}, State};
 
 handle_command({data_noop, Metric, TS1, TS2, _Opts}, _Sender, State=#state{dbref=DBRef}) ->
-    Key = <<Metric/binary, <<":">>/binary, TS1:32/integer>>,
+    Key = <<"m:", Metric/binary, <<":">>/binary, TS1:32/integer>>,
     Agg = fun({_K, _V}, Acc) -> Acc end,
     Acc =
         try
@@ -166,7 +173,7 @@ fold_until(MetricName, EncodedEndTS, Callback) ->
     PrefixLength = size(MetricName),
     fun ({Key, Value}, Acc)->
         case Key of
-            <<MetricName:PrefixLength/binary, ":", EncodedTS:32/integer>> ->
+            <<"m:", MetricName:PrefixLength/binary, ":", EncodedTS:32/integer>> ->
                case EncodedTS > EncodedEndTS of
                     true ->
                         throw({done, Acc});
@@ -192,17 +199,10 @@ f_scan_until(EndTS, Callback) ->
 list_callback(Metric, TS, Value, Acc) ->
     [{Metric, TS, Value} | Acc].
 
-all_keys(Key, Set) ->
-    Metric = case binary:split(Key, <<":">>, []) of
-                [M, _TS] ->  M;
-                [M] -> M;
-                M -> M
-    end,
-    ordsets:add_element(Metric, Set).
-
-pad_to4(Bin) ->
-    case size(Bin) of
-        4 -> Bin;
-        _ -> Pad = size(Bin) rem 4,
-             <<0:((4-Pad)*8), Bin/binary>>
+all_keys(Key, Acc) ->
+    case Key of
+        <<"k:", Metric/binary>> ->
+            ordsets:add_element(Metric, Acc);
+        _ ->
+            throw({done, Acc})
     end.
