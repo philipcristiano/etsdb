@@ -33,6 +33,10 @@ fold_fun({Key, Value}, Acc) ->
     io:format("Found one! ~p => ~p ~n", [Key, Value]),
     Acc.
 
+write(Key, TS, Value) when is_binary(TS) ->
+    write(Key, binary_to_integer(TS), Value);
+write(Key, TS, Value) when is_binary(Value) ->
+    write(Key, TS, binary_to_integer(Value));
 write(Key, TS, Value) ->
     HashKey = chash:key_of(term_to_binary(Key)),
 
@@ -65,6 +69,10 @@ scan(Key, TS1, TS2) ->
 data(Key, Start, Stop) ->
     data(Key, Start, Stop, 60).
 
+data(Key, Start, Stop, BucketSize) when is_binary(Start) ->
+    data(Key, binary_to_integer(Start), Stop, BucketSize);
+data(Key, Start, Stop, BucketSize) when is_binary(Stop) ->
+    data(Key, Start, binary_to_integer(Stop), BucketSize);
 data(Key, Start, Stop, BucketSize) ->
     HashKey = chash:key_of(term_to_binary(Key)),
     NVal = 1,
@@ -73,6 +81,10 @@ data(Key, Start, Stop, BucketSize) ->
     Message = {data, Key, Start, Stop, [{bucket_size, BucketSize}]},
     riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master).
 
+data_noop(Key, Start, Stop, BucketSize) when is_binary(Start) ->
+    data_noop(Key, binary_to_integer(Start), Stop, BucketSize);
+data_noop(Key, Start, Stop, BucketSize) when is_binary(Stop) ->
+    data_noop(Key, Start, binary_to_integer(Stop), BucketSize);
 data_noop(Key, Start, Stop, BucketSize) ->
     HashKey = chash:key_of(term_to_binary(Key)),
     NVal = 1,
