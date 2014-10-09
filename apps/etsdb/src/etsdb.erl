@@ -3,7 +3,7 @@
          data/3,
          data/4,
          keys/0,
-         fold_fun/2
+         fold_fun/2,
          open/1,
          write_to_db/3,
          list/0,
