@@ -1,5 +1,4 @@
 -module(etsdb_numbers_test).
--export([to_float_test/0]).
 
 -include_lib("eunit/include/eunit.hrl").
 

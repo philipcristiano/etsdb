@@ -29,6 +29,7 @@ provision:
 	time ansible-playbook -i ansible/linode -u root ansible/site.yml
 
 shell: compile
+	mkdir -p data/{cluster_meta,ring}
 	erl -pag ebin \
 	-name etsdb@127.0.0.1 \
 	-setcookie shell \
@@ -38,6 +39,7 @@ shell: compile
 	-eval "application:ensure_all_started(etsdb)."
 
 shell_2: compile
+	mkdir -p data_2/{cluster_meta,ring}
 	erl -pag ebin \
 	-name etsdb_2@127.0.0.1 \
 	-setcookie shell \
@@ -47,6 +49,7 @@ shell_2: compile
 	-eval "application:ensure_all_started(etsdb)."
 
 shell_3: compile
+	mkdir -p data_3/{cluster_meta,ring}
 	erl -pag ebin \
 	-name etsdb_3@127.0.0.1 \
 	-setcookie shell \

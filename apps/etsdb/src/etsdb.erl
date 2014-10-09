@@ -2,21 +2,13 @@
 -export([write/3,
          data/3,
          data/4,
-         data_noop/4,
-         run/0,
          keys/0,
+         fold_fun/2
          open/1,
          write_to_db/3,
-         list/1,
-         get/2,
-         scan/3,
-         fold_fun/2]).
+         list/0,
+         get/2]).
 
-
-run() ->
-    {ok, Ref} = open("data"),
-    eleveldb:fold(Ref, fun fold_fun/2, 0, []),
-    {ok, Ref}.
 
 
 open(Path) ->
@@ -49,8 +41,8 @@ write(Key, TS, Value) ->
     riak_core_vnode_master:command(List, Message, etsdb_vnode_master),
     ok.
 
-list(Key) ->
-    HashKey = chash:key_of(term_to_binary(Key)),
+list() ->
+    HashKey = chash:key_of(term_to_binary(<<>>)),
 
     %% Get the preflist...
     NVal = application:get_env(riak_core, ring_size, 64),
@@ -58,39 +50,19 @@ list(Key) ->
 
     riak_core_vnode_master:command(PrefList, list, etsdb_vnode_master).
 
-scan(Key, TS1, TS2) ->
-    HashKey = chash:key_of(term_to_binary(Key)),
-    NVal = 1,
-    [Pref] = riak_core_apl:get_apl(HashKey, NVal, etsdb),
-
-    Message = {scan, Key, TS1, TS2},
-    riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master).
-
 data(Key, Start, Stop) ->
-    data(Key, Start, Stop, 60).
+    data(Key, Start, Stop, []).
 
-data(Key, Start, Stop, BucketSize) when is_binary(Start) ->
-    data(Key, binary_to_integer(Start), Stop, BucketSize);
-data(Key, Start, Stop, BucketSize) when is_binary(Stop) ->
-    data(Key, Start, binary_to_integer(Stop), BucketSize);
-data(Key, Start, Stop, BucketSize) ->
+data(Key, Start, Stop, Opts) when is_binary(Start) ->
+    data(Key, binary_to_integer(Start), Stop, Opts);
+data(Key, Start, Stop, Opts) when is_binary(Stop) ->
+    data(Key, Start, binary_to_integer(Stop), Opts);
+data(Key, Start, Stop, Opts) ->
     HashKey = chash:key_of(term_to_binary(Key)),
     NVal = 1,
     [Pref] = riak_core_apl:get_apl(HashKey, NVal, etsdb),
 
-    Message = {data, Key, Start, Stop, [{bucket_size, BucketSize}]},
-    riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master).
-
-data_noop(Key, Start, Stop, BucketSize) when is_binary(Start) ->
-    data_noop(Key, binary_to_integer(Start), Stop, BucketSize);
-data_noop(Key, Start, Stop, BucketSize) when is_binary(Stop) ->
-    data_noop(Key, Start, binary_to_integer(Stop), BucketSize);
-data_noop(Key, Start, Stop, BucketSize) ->
-    HashKey = chash:key_of(term_to_binary(Key)),
-    NVal = 1,
-    [Pref] = riak_core_apl:get_apl(HashKey, NVal, etsdb),
-
-    Message = {data_noop, Key, Start, Stop, [{bucket_size, BucketSize}]},
+    Message = {data, Key, Start, Stop, Opts},
     riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master).
 
 keys() ->
