@@ -85,28 +85,18 @@ handle_command({data, Metric, TS1, TS2}, _Sender, State) ->
     handle_command({data, Metric, TS1, TS2, []}, _Sender, State);
 handle_command({data, Metric, TS1, TS2, Opts}, _Sender, State=#state{dbref=DBRef}) ->
     Key = <<"m:", Metric/binary, <<":">>/binary, TS1:32/integer>>,
-    Agg = etsdb_interval_fold:first_fold(proplists:get_value(bucket_size, Opts, 60)),
+    {F, Agg} = etsdb_interval_fold:online_fold(
+                proplists:get_value(aggregation, Opts, <<"avg">>),
+                proplists:get_value(bucket_size, Opts, 60)),
     Acc =
         try
-            eleveldb:fold(DBRef, fold_until(Metric, TS2, Agg), [], [{first_key, Key}])
+            eleveldb:fold(DBRef, fold_until(Metric, TS2, F), Agg, [{first_key, Key}])
         catch
             {done, Val} -> Val
         end,
-    ForwardAcc = lists:reverse(Acc),
+    ListAcc = F({eoi, eoi}, Acc),
+    ForwardAcc = lists:reverse(ListAcc),
     {reply, {ok, ForwardAcc}, State};
-
-handle_command({data_noop, Metric, TS1, TS2, _Opts}, _Sender, State=#state{dbref=DBRef}) ->
-    Key = <<"m:", Metric/binary, <<":">>/binary, TS1:32/integer>>,
-    Agg = fun({_K, _V}, Acc) -> Acc end,
-    Acc =
-        try
-            eleveldb:fold(DBRef, etsdb_vnode:fold_until(Metric, TS2, Agg), [], [{first_key, Key}])
-        catch
-            {done, Val} -> Val
-        end,
-    ForwardAcc = lists:reverse(Acc),
-    {reply, {ok, ForwardAcc}, State};
-
 
 handle_command(_Message, _Sender, State) ->
     {noreply, State}.

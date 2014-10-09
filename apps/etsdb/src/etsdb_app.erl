@@ -34,7 +34,7 @@ start_cowboy() ->
         {'_', [{"/", etsdb_handler_metrics, []},
                {"/static/[...]", cowboy_static, {dir, "priv/static/"}},
                {"/metrics", etsdb_handler_metrics, []},
-               {"/metrics/:metric/:ts1/:ts2", etsdb_handler_metric_data, []}
+               {"/metrics/:metric/", etsdb_handler_metric_data, []}
         ]}
     ]),
     CBHTTP = application:get_env(etsdb, http_port, 8080),

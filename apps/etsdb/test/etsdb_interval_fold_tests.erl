@@ -52,19 +52,19 @@ multiple_buckets(_Ref) ->
     [?_assertEqual([{60, 12}, {0, 10}], Acc)].
 
 avg_first_test() ->
-    {F, Acc} = etsdb_interval_fold:online_fold(avg, 60),
+    {F, Acc} = etsdb_interval_fold:online_fold(<<"avg">>, 60),
     EndAcc = lists:foldl(F, Acc, [{0, 10.0}, {eoi, eoi}]),
     ?assertEqual([{0, 10.0}], EndAcc).
 
 avg_two_items_test() ->
-    {F, Acc} = etsdb_interval_fold:online_fold(avg, 60),
+    {F, Acc} = etsdb_interval_fold:online_fold(<<"avg">>, 60),
     EndAcc = lists:foldl(F, Acc, [{0, 10.0},
                                   {1, 5.0},
                                   {eoi, eoi}]),
     ?assertEqual([{0, 7.5}], EndAcc).
 
 avg_three_items_test() ->
-    {F, Acc} = etsdb_interval_fold:online_fold(avg, 60),
+    {F, Acc} = etsdb_interval_fold:online_fold(<<"avg">>, 60),
     EndAcc = lists:foldl(F, Acc, [{0, 10.0},
                                   {1, 5.0},
                                   {2, 45.0},
@@ -72,7 +72,7 @@ avg_three_items_test() ->
     ?assertEqual([{0, 20.0}], EndAcc).
 
 avg_four_items_test() ->
-    {F, Acc} = etsdb_interval_fold:online_fold(avg, 60),
+    {F, Acc} = etsdb_interval_fold:online_fold(<<"avg">>, 60),
     EndAcc = lists:foldl(F, Acc, [{0, 10.0},
                                   {1, 5.0},
                                   {2, 45.0},
@@ -81,7 +81,7 @@ avg_four_items_test() ->
     ?assertEqual([{0, 35.0}], EndAcc).
 
 avg_second_bucket_test() ->
-    {F, Acc} = etsdb_interval_fold:online_fold(avg, 60),
+    {F, Acc} = etsdb_interval_fold:online_fold(<<"avg">>, 60),
     EndAcc = lists:foldl(F, Acc, [{0, 10.0},
                                   {1, 5.0},
                                   {2, 45.0},
@@ -91,7 +91,7 @@ avg_second_bucket_test() ->
     ?assertEqual([{60, 1.0}, {0, 35.0}], EndAcc).
 
 avg_second_bucket_two_item_test() ->
-    {F, Acc} = etsdb_interval_fold:online_fold(avg, 60),
+    {F, Acc} = etsdb_interval_fold:online_fold(<<"avg">>, 60),
     EndAcc = lists:foldl(F, Acc, [{0, 10.0},
                                   {1, 5.0},
                                   {2, 45.0},
@@ -102,7 +102,7 @@ avg_second_bucket_two_item_test() ->
     ?assertEqual([{60, 2.0}, {0, 35.0}], EndAcc).
 
 avg_second_bucket_three_item_test() ->
-    {F, Acc} = etsdb_interval_fold:online_fold(avg, 60),
+    {F, Acc} = etsdb_interval_fold:online_fold(<<"avg">>, 60),
     EndAcc = lists:foldl(F, Acc, [{0, 10.0},
                                   {1, 5.0},
                                   {2, 45.0},
@@ -115,17 +115,17 @@ avg_second_bucket_three_item_test() ->
 
 
 min_first_test() ->
-    {F, Acc} = etsdb_interval_fold:online_fold(min, 60),
+    {F, Acc} = etsdb_interval_fold:online_fold(<<"min">>, 60),
     EndAcc = lists:foldl(F, Acc, [{1, 10.0}, {eoi, eoi}]),
     ?assertEqual([{0, 10.0}], EndAcc).
 
 min_two_items_test() ->
-    {F, Acc} = etsdb_interval_fold:online_fold(min, 60),
+    {F, Acc} = etsdb_interval_fold:online_fold(<<"min">>, 60),
     EndAcc = lists:foldl(F, Acc, [{1, 10.0}, {2, 5.0}, {eoi, eoi}]),
     ?assertEqual([{0, 5.0}], EndAcc).
 
 min_buckets_test() ->
-    {F, Acc} = etsdb_interval_fold:online_fold(min, 60),
+    {F, Acc} = etsdb_interval_fold:online_fold(<<"min">>, 60),
     EndAcc = lists:foldl(F, Acc, [{1, 10.0},
                                   {2, 5.0},
                                   {60, 1.0},

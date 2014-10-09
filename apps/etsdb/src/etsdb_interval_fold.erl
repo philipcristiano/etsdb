@@ -21,10 +21,10 @@ fold_bucket({K, V}, [], Bucket) ->
 
 online_fold(Alg, Interval) ->
     case Alg of
-        avg -> {fun({K,V}, Acc) ->
+        <<"avg">> -> {fun({K,V}, Acc) ->
                    fold_avg({K, V}, Acc, Interval)
                 end, #avg_acc{n=1}};
-        min -> {fun({K,V}, Acc) ->
+        <<"min">> -> {fun({K,V}, Acc) ->
                    fold_min({K, V}, Acc, Interval)
                 end, []}
     end.
