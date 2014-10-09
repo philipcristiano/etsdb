@@ -69,17 +69,6 @@ handle_command(list_keys, _Sender, State=#state{dbref=DBRef})->
             {done, Val} -> Val
         end,
     {reply, Keys, State};
-handle_command({scan, Metric, TS1, TS2}, _Sender, State=#state{dbref=DBRef}) ->
-    Key = <<"m:", Metric/binary, <<":">>/binary, TS1:32/integer>>,
-
-    Acc =
-        try
-            eleveldb:fold(DBRef, etsdb_vnode:f_scan_until(TS2, fun list_callback/4), [], [{first_key, Key}])
-        catch
-            {done, Val} -> Val
-        end,
-    ForwardAcc = lists:reverse(Acc),
-    {reply, {ok, ForwardAcc}, State};
 
 handle_command({data, Metric, TS1, TS2}, _Sender, State) ->
     handle_command({data, Metric, TS1, TS2, []}, _Sender, State);
