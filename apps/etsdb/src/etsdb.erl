@@ -34,11 +34,11 @@ write(Key, TS, Value) ->
 
     %% Get the preflist...
     NVal = 3,
-    [Pref|List] = riak_core_apl:get_apl(HashKey, NVal, etsdb),
+    PrefList = riak_core_apl:get_apl(HashKey, NVal, etsdb),
 
     Message = {write, Key, TS, Value},
-    run_command([Pref], Message),
-    riak_core_vnode_master:command(List, Message, etsdb_vnode_master),
+    % run_command([Pref], Message),
+    riak_core_vnode_master:command(PrefList, Message, etsdb_vnode_master),
     ok.
 
 list() ->
