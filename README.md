@@ -31,7 +31,7 @@ To get the list of metrics available:
 
 To get data for a metric
 
-    http://localhost:8080/metrics/METRIC?from={timestamp}&until{timestamp}
+    http://localhost:8080/metrics/{metric}?from={timestamp}&until={timestamp}
 
 Other fields available
 
