@@ -40,3 +40,16 @@ Other fields available
     ?aggregation=How to aggregate the data points (min/avg)
 
 
+# Making a Release
+
+On ubuntu
+
+  apt-get install erlang libleveldb-dev libsnappy-dev snappy build-essential
+
+  ./rebar get-deps compile
+
+  ./relx release
+
+# Installing the release
+
+  apt-get install ...
