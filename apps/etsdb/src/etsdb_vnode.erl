@@ -172,9 +172,6 @@ f_scan_until(EndTS, Callback) ->
        end
     end.
 
-list_callback(Metric, TS, Value, Acc) ->
-    [{Metric, TS, Value} | Acc].
-
 all_keys(Key, Acc) ->
     case Key of
         <<"k:", Metric/binary>> ->
