@@ -21,7 +21,6 @@
          all_keys/2,
          init/1,
          fold_until/3,
-         f_scan_until/2,
          terminate/2,
          handle_command/3,
          is_empty/1,
@@ -159,17 +158,6 @@ fold_until(MetricName, EncodedEndTS, Callback) ->
             _ ->
                 throw({done, Acc})
         end
-    end.
-
-f_scan_until(EndTS, Callback) ->
-    fun ({Key, Value}, Acc)->
-       [Metric, TS] = binary:split(Key, <<":">>, []),
-       case TS > EndTS of
-            true ->
-                throw({done, Acc});
-            false ->
-                Callback(Metric, TS, Value, Acc)
-       end
     end.
 
 all_keys(Key, Acc) ->
