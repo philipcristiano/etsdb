@@ -4,6 +4,7 @@
          data/4,
          keys/0,
          fold_fun/2,
+         merkle/1,
          open/1,
          write_to_db/3,
          list/0,
@@ -63,6 +64,14 @@ data(Key, Start, Stop, Opts) ->
     [Pref] = riak_core_apl:get_apl(HashKey, NVal, etsdb),
 
     Message = {data, Key, Start, Stop, Opts},
+    riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master).
+
+merkle(Key) ->
+    HashKey = chash:key_of(term_to_binary(Key)),
+    NVal = 1,
+    [Pref] = riak_core_apl:get_apl(HashKey, NVal, etsdb),
+
+    Message = {merkle, Key},
     riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master).
 
 keys() ->

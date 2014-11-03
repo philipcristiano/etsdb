@@ -21,6 +21,7 @@
          all_keys/2,
          init/1,
          fold_until/3,
+         fold_while_matching_metric/2,
          terminate/2,
          handle_command/3,
          is_empty/1,
@@ -68,6 +69,16 @@ handle_command(list_keys, _Sender, State=#state{dbref=DBRef})->
             {done, Val} -> Val
         end,
     {reply, Keys, State};
+
+handle_command({merkle, Metric}, _Sender, State=#state{dbref=DBRef})->
+    Key = <<"m:", Metric/binary, <<":">>/binary>>,
+    Acc =
+        try
+            eleveldb:fold(DBRef, fold_while_matching_metric(Metric, fun merkerl:insert/2), undefined, [{first_key, Key}])
+        catch
+            {done, Val} -> Val
+        end,
+    {reply, {ok, Acc}, State};
 
 handle_command({data, Metric, TS1, TS2}, _Sender, State) ->
     handle_command({data, Metric, TS1, TS2, []}, _Sender, State);
@@ -155,6 +166,17 @@ fold_until(MetricName, EncodedEndTS, Callback) ->
                     false ->
                         Callback({EncodedTS, erlang:binary_to_term(Value)}, Acc)
                end;
+            _ ->
+                throw({done, Acc})
+        end
+    end.
+
+fold_while_matching_metric(MetricName, Callback) ->
+    PrefixLength = size(MetricName),
+    fun ({Key, Value}, Acc)->
+        case Key of
+            <<"m:", MetricName:PrefixLength/binary, ":", _/binary>> ->
+                Callback({Key, Value}, Acc);
             _ ->
                 throw({done, Acc})
         end
