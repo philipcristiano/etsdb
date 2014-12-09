@@ -55,5 +55,6 @@ On ubuntu
   Build it on each machine currently until there are packages.
   
 # Running
-
+    
+    mkdir /spotify/etsdb
     _rel/etsdb/bin/etsdb
