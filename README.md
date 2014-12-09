@@ -52,4 +52,4 @@ On ubuntu
 
 # Installing the release
 
-  apt-get install ...
+  Build it on each machine currently until I can make packages.
