@@ -52,4 +52,8 @@ On ubuntu
 
 # Installing the release
 
-  Build it on each machine currently until I can make packages.
+  Build it on each machine currently until there are packages.
+  
+# Running
+
+    _rel/etsdb/bin/etsdb
