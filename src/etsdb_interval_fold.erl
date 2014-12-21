@@ -29,16 +29,16 @@ online_fold(Alg, Interval) ->
                 end, []}
     end.
 
-fold_avg({eoi, eoi}, Acc=#avg_acc{bucket=undefined, rest=Rest}, _Bucket) ->
+fold_avg({eoi, eoi}, _Acc=#avg_acc{bucket=undefined, rest=Rest}, _Bucket) ->
     Rest;
-fold_avg({eoi, eoi}, Acc=#avg_acc{bucket=CurBucket, val=Val,rest=undefined}, _Bucket) ->
+fold_avg({eoi, eoi}, _Acc=#avg_acc{bucket=CurBucket, val=Val,rest=undefined}, _Bucket) ->
     [{CurBucket, Val}];
-fold_avg({eoi, eoi}, Acc=#avg_acc{bucket=CurBucket, val=Val,rest=Rest}, _Bucket) ->
+fold_avg({eoi, eoi}, _Acc=#avg_acc{bucket=CurBucket, val=Val,rest=Rest}, _Bucket) ->
     [{CurBucket, Val}| Rest];
 fold_avg({K, V}, #avg_acc{bucket=undefined, n=1, val=undefined, rest=undefined}, Bucket) ->
     NewBucket = K div Bucket * Bucket,
     #avg_acc{bucket=NewBucket, n=2, val=V, rest=[]};
-fold_avg({K, V}, Acc=#avg_acc{bucket=CurBucket, n=N, val=Val, rest=Rest}, Bucket) ->
+fold_avg({K, V}, _Acc=#avg_acc{bucket=CurBucket, n=N, val=Val, rest=Rest}, Bucket) ->
     NewBucket = K div Bucket * Bucket,
     if
         NewBucket == CurBucket ->

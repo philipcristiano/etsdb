@@ -11,3 +11,5 @@ data_3/
 log/
 erl_crash.dump
 _rel/
+.erlang.mk.packages.v2
+/logs/
