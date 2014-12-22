@@ -21,6 +21,12 @@ groups() -> [{vnode,
              [],
              [list_keys]}].
 
+get_response(Ref) ->
+    receive {Ref, M} -> {ok, M}
+    after 100 -> error
+    end.
+
+
 init_per_testcase(_, Config) ->
     Dir = ?config(priv_dir, Config),
     application:set_env(etsdb, data_dir, Dir),
@@ -38,8 +44,6 @@ list_keys(Config) ->
 
     {ok, _} = send_command(Pid, {write, Key, TS, Value}),
     {ok, Ref}  = send_command(Pid, list_keys),
-    Msg = receive {Ref, M} -> M
-          after 1000 -> error
-          end,
+    {ok, Msg} = get_response(Ref),
 
     ?assertEqual([Key], Msg).
