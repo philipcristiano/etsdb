@@ -6,7 +6,9 @@
 
 -export([all/0]).
 -export([groups/0, init_per_testcase/2, end_per_testcase/2]).
--export([list_keys/1]).
+-export([list_keys/1,
+         read/1,
+         aggregate/1]).
 
 
 send_command(Pid, Request) ->
@@ -19,7 +21,9 @@ all() -> [{group, vnode}].
 
 groups() -> [{vnode,
              [],
-             [list_keys]}].
+             [list_keys,
+              read,
+              aggregate]}].
 
 get_response(Ref) ->
     receive {Ref, M} -> {ok, M}
@@ -47,3 +51,24 @@ list_keys(Config) ->
     {ok, Msg} = get_response(Ref),
 
     ?assertEqual([Key], Msg).
+
+read(Config) ->
+    {Key, TS, Value} = {<<"Key">>, 1, 2},
+    Pid = ?config(vnode, Config),
+
+    {ok, _} = send_command(Pid, {write, Key, TS, Value}),
+    {ok, Ref}  = send_command(Pid, {data, Key, 0, 2}),
+    {ok, {ok, Msg}} = get_response(Ref),
+
+    ?assertEqual([{0,2}], Msg).
+
+aggregate(Config) ->
+    {Key, TS} = {<<"Key">>, 1},
+    Pid = ?config(vnode, Config),
+
+    {ok, _} = send_command(Pid, {write, Key, TS, 5}),
+    {ok, _} = send_command(Pid, {write, Key, TS + 1, 15}),
+    {ok, Ref}  = send_command(Pid, {data, Key, 0, 2}),
+    {ok, {ok, Msg}} = get_response(Ref),
+
+    ?assertEqual([{0,10.0}], Msg).
