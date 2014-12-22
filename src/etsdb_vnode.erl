@@ -33,6 +33,7 @@
          handle_handoff_data/2,
          encode_handoff_item/2,
          handle_coverage/4,
+         request_hash/1,
          handle_exit/3]).
 
 -record(state, {partition, dbref, datadir}).
@@ -62,12 +63,14 @@ handle_command(list, _Sender, State=#state{dbref=DBRef})->
     eleveldb:fold(DBRef, fun etsdb:fold_fun/2, 0, []),
     {reply, {done, State#state.partition}, State};
 handle_command(list_keys, _Sender, State=#state{dbref=DBRef})->
-
+    io:format("Sender ~p~n", [_Sender]),
+    io:format("Listing!~n"),
     Keys = try
             eleveldb:fold_keys(DBRef, fun etsdb_vnode:all_keys/2, ordsets:new(), [{first_key, <<"k:">>}])
         catch
             {done, Val} -> Val
         end,
+    io:format("Reply ~p~n", [Keys]),
     {reply, Keys, State};
 
 handle_command({data, Metric, TS1, TS2}, _Sender, State) ->
@@ -86,6 +89,8 @@ handle_command({data, Metric, TS1, TS2, Opts}, _Sender, State=#state{dbref=DBRef
     ListAcc = F({eoi, eoi}, Acc),
     ForwardAcc = lists:reverse(ListAcc),
     {reply, {ok, ForwardAcc}, State};
+handle_command(stop, _Sender, _State) ->
+    {stop, normal, {}};
 
 handle_command(_Message, _Sender, State) ->
     {noreply, State}.
@@ -142,6 +147,8 @@ handle_exit(_Pid, _Reason, State) ->
 terminate(_Reason, _State) ->
     ok.
 
+request_hash(_) ->
+    undefined.
 
 %% Internal API
 

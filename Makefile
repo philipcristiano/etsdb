@@ -1,24 +1,18 @@
-compile: deps
-	rebar compile
+PROJECT=etsdb
+CT_OPTS = -create_priv_dir auto_per_tc
 
-.PHONY: deps
-deps:
-	rebar get-deps
+DEPS = eleveldb riak_core cowboy jsx
+dep_eleveldb = git https://github.com/basho/eleveldb.git 2.0
+dep_riak_core = git https://github.com/basho/riak_core 2.0.2
+dep_cowboy = git https://github.com/ninenines/cowboy 1.0.0
+dep_jsx = git https://github.com/talentdeficit/jsx.git v2.1.1
 
-erl: compile
-	ERL_LIBS=deps erl -pa ebin -pa deps -s pager_app -sname pager
+.PHONY: release clean-release
+release: clean-release all projects
+	relx -o rel/$(PROJECT)
 
-.PHONY: server
-server: compile
-	ERL_LIBS=deps erl -pa ebin -pa deps -s pager_app -noshell -sname pager
-
-.PHONY: test
-test: compile
-	rebar eunit
-
-.PHONY: package
-package:
-	tar -czf package.tgz src Makefile start_server src rebar.config templates priv
+clean-release:
+	rm -rf rel/$(PROJECT)
 
 .PHONY: deploy
 deploy: package
@@ -28,7 +22,7 @@ deploy: package
 provision:
 	time ansible-playbook -i ansible/linode -u root ansible/site.yml
 
-shell: compile
+shell_1: app
 	mkdir -p data/{cluster_meta,ring}
 	erl -pag ebin \
 	-name etsdb@127.0.0.1 \
@@ -38,7 +32,7 @@ shell: compile
 	-config etsdb \
 	-eval "application:ensure_all_started(etsdb)."
 
-shell_2: compile
+shell_2: app
 	mkdir -p data_2/{cluster_meta,ring}
 	erl -pag ebin \
 	-name etsdb_2@127.0.0.1 \
@@ -48,7 +42,7 @@ shell_2: compile
 	-config etsdb_2 \
 	-eval "application:ensure_all_started(etsdb)."
 
-shell_3: compile
+shell_3: app
 	mkdir -p data_3/{cluster_meta,ring}
 	erl -pag ebin \
 	-name etsdb_3@127.0.0.1 \
@@ -57,3 +51,4 @@ shell_3: compile
 	-pa ebin \
 	-config etsdb_3 \
 	-eval "application:ensure_all_started(etsdb)."
+include erlang.mk

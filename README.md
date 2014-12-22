@@ -7,7 +7,7 @@ An Erlang Time Series Database built with LevelDB and Riak Core.
 
 Install erlang R16 (limited by Riak Core)
 
-    $ make shell
+    $ make shell_1
 
 Brings you into a shell
 
@@ -46,15 +46,16 @@ On ubuntu
 
   apt-get install erlang libleveldb-dev libsnappy-dev snappy build-essential
 
-  ./rebar get-deps compile
+  make deps apps rel
 
-  ./relx release
 
 # Installing the release
 
-  Build it on each machine currently until there are packages.
-  
+Build it on each machine currently until there are packages.
+
+  apt-get install ... just make the release on the node or copy it over
+
 # Running
-    
+
     mkdir /spotify/etsdb
     _rel/etsdb/bin/etsdb
