@@ -27,7 +27,7 @@ groups() -> [{vnode,
 
 get_response(Ref) ->
     receive {Ref, M} -> {ok, M}
-    after 100 -> error
+    after 1000 -> error
     end.
 
 
