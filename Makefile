@@ -1,8 +1,8 @@
 PROJECT=etsdb
 CT_OPTS = -create_priv_dir auto_per_tc
 
-DEPS = eleveldb riak_core cowboy jsx
-dep_eleveldb = git https://github.com/basho/eleveldb.git 2.0
+DEPS = leveltsdb riak_core cowboy jsx
+dep_leveltsdb = git https://github.com/philipcristiano/leveltsdb.git 0.1.2
 dep_riak_core = git https://github.com/basho/riak_core 2.0.2
 dep_cowboy = git https://github.com/ninenines/cowboy 1.0.0
 dep_jsx = git https://github.com/talentdeficit/jsx.git v2.1.1

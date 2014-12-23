@@ -4,18 +4,9 @@
          data/4,
          keys/0,
          fold_fun/2,
-         open/1,
-         write_to_db/3,
          list/0,
          get/2]).
 
-
-
-open(Path) ->
-    eleveldb:open(Path, [{create_if_missing, true}]).
-
-write_to_db(Ref, Key, Value) ->
-    eleveldb:write(Ref, [{put, Key, Value}], [{sync, false}]).
 
 get(Ref, Key) ->
     eleveldb:get(Ref, Key, []).
