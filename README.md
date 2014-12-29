@@ -44,16 +44,16 @@ Other fields available
 
 On ubuntu
 
-  apt-get install erlang libleveldb-dev libsnappy-dev snappy build-essential
+    apt-get install erlang libleveldb-dev libsnappy-dev snappy build-essential
 
-  make deps apps rel
+    make deps apps rel
 
 
 # Installing the release
 
 Build it on each machine currently until there are packages.
 
-  apt-get install ... just make the release on the node or copy it over
+    apt-get install ... just make the release on the node or copy it over
 
 # Running
 
