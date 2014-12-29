@@ -44,7 +44,7 @@ Other fields available
 
 On ubuntu
 
-    apt-get install erlang libleveldb-dev libsnappy-dev snappy build-essential
+    apt-get install erlang libleveldb-dev libsnappy-dev build-essential
 
     make deps apps rel
 
