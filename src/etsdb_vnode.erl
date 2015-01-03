@@ -49,7 +49,6 @@ init([Partition]) ->
     {ok, DBRef} = leveltsdb:open(LDBDir),
     {ok, #state{partition=Partition, dbref=DBRef, datadir=LDBDir}}.
 
-% Sample command: respond to a ping
 handle_command(ping, _Sender, State) ->
     io:format("Got a ping!~n"),
     {reply, {pong, State#state.partition}, State};
@@ -70,6 +69,14 @@ handle_command({data, Metric, TS1, TS2, Opts}, _Sender, State=#state{dbref=DBRef
     Alg = proplists:get_value(aggregation, Opts, <<"avg">>),
     {ok, Acc} = leveltsdb:aggregate(DBRef, Metric, TS1, TS2, Alg, Opts),
     {reply, {ok, Acc}, State};
+
+handle_command({naive_repair, _Opts}, _Sender, State=#state{partition=Partition, dbref=DBRef}) ->
+    io:format("Naive repair starting on ~p~n", [Partition]),
+    {ok, Metrics} = leveltsdb:metrics(DBRef),
+    io:format("Naive repair starting on ~p~n", [Partition]),
+    repair_metrics(Metrics, DBRef),
+    {reply, {done, Partition}, State};
+
 handle_command(stop, _Sender, _State) ->
     {stop, normal, {}};
 
@@ -132,6 +139,19 @@ request_hash(_) ->
     undefined.
 
 %% Internal API
+
+repair_metrics([], _Ref) ->
+    ok;
+repair_metrics([Metric| Rest], Ref) ->
+    io:format("Repair metric: ~p~n", [Metric]),
+    leveltsdb:fold_metric(Ref, Metric, rewrite_metric_aggregator(Metric), []),
+    repair_metrics(Rest, Ref).
+
+rewrite_metric_aggregator(Metric) ->
+    fun({TS, Value}, Acc) ->
+       ok = etsdb:write(Metric, TS, Value),
+       Acc
+    end.
 
 fold_until(MetricName, EncodedEndTS, Callback) ->
     PrefixLength = size(MetricName),

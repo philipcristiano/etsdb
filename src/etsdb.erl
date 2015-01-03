@@ -4,6 +4,7 @@
          data/4,
          keys/0,
          fold_fun/2,
+         naive_repair/1,
          list/0,
          get/2]).
 
@@ -68,3 +69,9 @@ run_command([], _Command) ->
 run_command([Pref| List], Command) ->
     R = riak_core_vnode_master:sync_spawn_command(Pref, Command, etsdb_vnode_master),
     [R | run_command(List, Command)].
+
+naive_repair(Opts) ->
+    HashKey = chash:key_of(term_to_binary(<<>>)),
+    NVal = application:get_env(riak_core, ring_size, 64),
+    PrefList = riak_core_apl:get_apl(HashKey, NVal, etsdb),
+    run_command(PrefList, {naive_repair, Opts}).
