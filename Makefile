@@ -1,26 +1,22 @@
 PROJECT=etsdb
 CT_OPTS = -create_priv_dir auto_per_tc
+PKG_REVISION ?= $(shell git describe --tags)
+PKG_VERSION	?= $(shell git describe --tags | tr - .)
 
 DEPS = leveltsdb riak_core cowboy jsx
 dep_leveltsdb = git https://github.com/philipcristiano/leveltsdb.git 0.1.2
 dep_riak_core = git https://github.com/basho/riak_core 2.0.2
+PKG_REVISION ?= $(shell git describe --tags)
+PKG_VERSION	?= $(shell git describe --tags | tr - .)
 dep_cowboy = git https://github.com/ninenines/cowboy 1.0.0
 dep_jsx = git https://github.com/talentdeficit/jsx.git v2.1.1
+.PHONY: release
 
-.PHONY: release clean-release
-release: clean-release all projects
-	relx -o rel/$(PROJECT)
+release: clean app
+	./relx release
 
-clean-release:
-	rm -rf rel/$(PROJECT)
-
-.PHONY: deploy
-deploy: package
-	time ansible-playbook -i ansible/linode -u root ansible/deploy.yml
-
-.PHONY: provision
-provision:
-	time ansible-playbook -i ansible/linode -u root ansible/site.yml
+package: release
+	fpm -s dir -t deb -n etsdb -v PKG_VERSION _rel/etsdbt/ rel/init=/etc/init.d/etsdb
 
 shell_1: app
 	mkdir -p data/{cluster_meta,ring}
