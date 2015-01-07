@@ -5,7 +5,7 @@
 %% uncomment this line to ship a release without the source code included
 % {include_src, false}.
 
-{release, {etsdb, semver},
+{release, {etsdb, VERSION},
  %% list of apps to include
  [etsdb]}.
 

@@ -13,3 +13,4 @@ erl_crash.dump
 _rel/
 .erlang.mk.packages.v2
 /logs/
+relx.config # generated in makefile
