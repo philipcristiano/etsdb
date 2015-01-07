@@ -1,7 +1,8 @@
 {application, etsdb,
  [
   {description, ""},
-  {vsn, "1"},
+  {id, "git"},
+  {vsn, git},
   {registered, []},
   {modules, []},
   {applications, [

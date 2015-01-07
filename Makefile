@@ -13,10 +13,11 @@ dep_jsx = git https://github.com/talentdeficit/jsx.git v2.1.1
 .PHONY: release
 
 release: clean app
-	./relx release
+	./relx release -V 3
 
 package: release
-	fpm -s dir -t deb -n etsdb -v PKG_VERSION _rel/etsdbt/ rel/init=/etc/init.d/etsdb
+	rm -f *.deb
+	fpm -s dir -t deb -n etsdb -v "$(PKG_VERSION)" _rel/etsdb/ rel/init=/etc/init.d/etsdb
 
 shell_1: app
 	mkdir -p data/{cluster_meta,ring}
