@@ -6,5 +6,6 @@ otp_release:
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq ruby ruby-dev rubygems build-essential
-  - sudo gem install fpm  --no-rdoc
+install:
+  - gem install fpm
 script: make deps tests package
