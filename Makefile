@@ -20,7 +20,6 @@ release: clean app
 package: release
 	rm -f *.deb
 	fpm -s dir -t deb -n etsdb -v "$(PKG_VERSION)" \
-		--deb-user=etsdb \
 		--before-install=rel/before-install \
 		_rel/etsdb=/opt/ \
 		rel/init=/etc/init.d/etsdb \
