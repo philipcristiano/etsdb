@@ -22,7 +22,7 @@ package: release
 	fpm -s dir -t deb -n etsdb -v "$(PKG_VERSION)" \
 		--deb-user=etsdb \
 		--before-install=rel/before-install \
-		_rel/etsdb/=/opt/ \
+		_rel/etsdb=/opt/ \
 		rel/init=/etc/init.d/etsdb \
 		rel/var/lib/etsdb/=/var/lib/etsdb/ \
 		rel/etc/etsdb/etsdb.config=/etc/etsdb/etsdb.config \
