@@ -18,7 +18,12 @@ release: clean app
 
 package: release
 	rm -f *.deb
-	fpm -s dir -t deb -n etsdb -v "$(PKG_VERSION)" _rel/etsdb/ rel/init=/etc/init.d/etsdb
+	fpm -s dir -t deb -n etsdb -v "$(PKG_VERSION)" \
+		--deb-user=etsdb \
+		--before-install=rel/before-install \
+		_rel/etsdb/=/opt/ \
+		rel/init=/etc/init.d/etsdb \
+		rel/var/lib/etsdb/=/var/lib/etsdb/
 
 shell_1: app
 	mkdir -p data/{cluster_meta,ring}
