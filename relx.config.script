@@ -9,6 +9,7 @@
  %% list of apps to include
  [etsdb]}.
 
+{extended_start_script, true}.
 {sys_config, "./rel/sys.config"}.
 {overlay, [
     {mkdir, "log"},
