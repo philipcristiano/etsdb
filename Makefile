@@ -25,7 +25,8 @@ package: release
 		_rel/etsdb/=/opt/ \
 		rel/init=/etc/init.d/etsdb \
 		rel/var/lib/etsdb/=/var/lib/etsdb/ \
-		rel/etc/etsdb/etsdb.config=/etc/etsdb/etsdb.config
+		rel/etc/etsdb/etsdb.config=/etc/etsdb/etsdb.config \
+		rel/etc/default/etsdb=/etc/default/etsdb
 
 shell_1: app
 	mkdir -p data/{cluster_meta,ring}
