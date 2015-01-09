@@ -2,4 +2,4 @@
 
 [ -f /etc/default/etsdb ] && . /etc/default/etsdb
 
-/opt/etsdb/bin/etsdb "$@"
+su - etsdb /opt/etsdb/bin/etsdb "$@"
