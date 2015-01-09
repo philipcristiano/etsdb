@@ -9,7 +9,8 @@
                   kernel,
                   stdlib,
                   cowboy,
-                  riak_core
+                  riak_core,
+                  leveltsdb
                  ]},
   {mod, { etsdb_app, []}},
   {env, []}
