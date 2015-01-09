@@ -2,7 +2,7 @@
 
 [ -f /etc/default/etsdb ] && . /etc/default/etsdb
 
-mkdir -p /var/lib/etsdb/{cluster_meta,ring}
+mkdir -p /var/lib/etsdb/cluster_meta /var/lib/etsdb/ring
 
 chown -R etsdb /var/lib/etsdb /opt/etsdb/log
 
