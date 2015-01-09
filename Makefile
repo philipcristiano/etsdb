@@ -23,7 +23,8 @@ package: release
 		--before-install=rel/before-install \
 		_rel/etsdb/=/opt/ \
 		rel/init=/etc/init.d/etsdb \
-		rel/var/lib/etsdb/=/var/lib/etsdb/
+		rel/var/lib/etsdb/=/var/lib/etsdb/ \
+		rel/etc/etsdb/etsdb.config=/etc/etsdb/etsdb.config
 
 shell_1: app
 	mkdir -p data/{cluster_meta,ring}
