@@ -13,6 +13,7 @@ dep_jsx = git https://github.com/talentdeficit/jsx.git v2.1.1
 .PHONY: release
 
 release: clean app
+	rm -rf _rel
 	sed  "s/VERSION/\"$(PKG_VERSION)\"/" < relx.config.script > relx.config
 	./relx release --relname etsdb --relvsn "$(PKG_VERSION)" -V 3 --lib-dir ebin
 
