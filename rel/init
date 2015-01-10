@@ -2,8 +2,8 @@
 
 [ -f /etc/default/etsdb ] && . /etc/default/etsdb
 
-mkdir -p /var/lib/etsdb/cluster_meta /var/lib/etsdb/ring
+mkdir -p /var/lib/etsdb/cluster_meta /var/lib/etsdb/ring /var/log/etsdb
 
-chown -R etsdb /var/lib/etsdb /opt/etsdb/log
+chown -R etsdb /var/lib/etsdb /opt/etsdb/log /var/log/etsdb
 
 su - etsdb /opt/etsdb/bin/etsdb "$@"
