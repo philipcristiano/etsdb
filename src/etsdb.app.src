@@ -1,14 +1,19 @@
 {application, etsdb,
  [
   {description, ""},
-  {vsn, "1"},
+  {id, "git"},
+  {vsn, git},
   {registered, []},
   {modules, []},
   {applications, [
                   kernel,
                   stdlib,
+                  bear, %% included since upstream dep doesn't
                   cowboy,
-                  riak_core
+                  riak_core,
+                  jsx,
+                  recon,
+                  leveltsdb
                  ]},
   {mod, { etsdb_app, []}},
   {env, []}

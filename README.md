@@ -45,17 +45,25 @@ Other fields available
 On ubuntu
 
     apt-get install erlang libleveldb-dev libsnappy-dev build-essential
-
-    make deps apps rel
+    gem install fpm --no-rdoc
+    make deps apps release package
 
 
 # Installing the release
 
-Build it on each machine currently until there are packages.
-
-    apt-get install ... just make the release on the node or copy it over
+Build a package on another machine with the same OS/architecture. Install
+that package on another machine, it will include Erlang and ETSDB.
 
 # Running
 
-    mkdir /spotify/etsdb
-    _rel/etsdb/bin/etsdb
+    # /etc/init.d/etsdb start
+
+# Configuration
+
+The package will install a `/etc/etsdb/etsdb.config`. Follow the contents
+of `rel/sys.config` for details`
+
+You may one to set the carbon port (which this defaults to 2008) to 2003, the
+standard port. This would look like
+
+   [{etsdb, [{graphite_port, 2003}]}].

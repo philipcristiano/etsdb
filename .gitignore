@@ -6,10 +6,13 @@ deps
 data/
 data_2/
 data_3/
-/ebin/
 /apps/*/ebin/
+/ebin/
+/*.deb
 log/
 erl_crash.dump
 _rel/
 .erlang.mk.packages.v2
 /logs/
+relx.config # generated in makefile
+relx.config

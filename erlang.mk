@@ -235,6 +235,7 @@ app:: erlc-include ebin/$(PROJECT).app
 	$(appsrc_verbose) cat src/$(PROJECT).app.src \
 		| sed "s/{modules,[[:space:]]*\[\]}/{modules, \[$(MODULES)\]}/" \
 		| sed "s/{id,[[:space:]]*\"git\"}/{id, \"$(GITDESCRIBE)\"}/" \
+		| sed "s/{vsn,[[:space:]]*\git\}/{vsn, \"$(GITDESCRIBE)\"}/" \
 		> ebin/$(PROJECT).app
 
 define compile_erl
