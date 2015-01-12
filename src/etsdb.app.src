@@ -11,6 +11,7 @@
                   bear, %% included since upstream dep doesn't
                   cowboy,
                   riak_core,
+                  jsx,
                   leveltsdb
                  ]},
   {mod, { etsdb_app, []}},
