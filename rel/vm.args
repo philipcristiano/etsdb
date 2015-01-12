@@ -1,1 +1,3 @@
--name etsdb@`hostname -f`
+-name etsdb
+
+-setcookie etsdb

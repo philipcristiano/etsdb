@@ -11,8 +11,7 @@
 
 {extended_start_script, true}.
 {sys_config, "./rel/sys.config"}.
+{vm_args, "./rel/vm.args"}.
 {overlay, [
-    {mkdir, "log"},
-    {copy, "rel/vm.args",
-        "releases/\{\{release_name\}\}-\{\{release_version\}\}/vm.args"}
+    {mkdir, "log"}
 ]}.
