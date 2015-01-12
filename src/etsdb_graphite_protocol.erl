@@ -13,7 +13,7 @@ init(Ref, Socket, Transport, _Opts = []) ->
 	loop(Socket, Transport, <<"">>).
 
 loop(Socket, Transport, Buffer) ->
-	case Transport:recv(Socket, 0, 1024) of
+	case Transport:recv(Socket, 0, 3600000) of
 		{ok, Data} ->
             {ok, Unprocessed} = handle_data(Buffer, Data),
 			loop(Socket, Transport, Unprocessed);
