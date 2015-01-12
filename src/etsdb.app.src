@@ -12,6 +12,7 @@
                   cowboy,
                   riak_core,
                   jsx,
+                  recon,
                   leveltsdb
                  ]},
   {mod, { etsdb_app, []}},
