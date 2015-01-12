@@ -5,6 +5,6 @@ HOME=/opt/etsdb/
 
 mkdir -p /var/lib/etsdb/cluster_meta /var/lib/etsdb/ring /var/log/etsdb
 
-chown -R etsdb /var/lib/etsdb /opt/etsdb/log /var/log/etsdb
+chown -R etsdb /opt/etsdb /var/lib/etsdb /opt/etsdb/log /var/log/etsdb
 
 su etsdb -mc "/opt/etsdb/bin/etsdb $@"
