@@ -51,14 +51,12 @@ On ubuntu
 
 # Installing the release
 
-Build it on each machine currently until there are packages.
-
-    apt-get install ... just make the release on the node or copy it over
+Build a package on another machine with the same OS/architecture. Install
+that package on another machine, it will include Erlang and ETSDB.
 
 # Running
 
-    mkdir /spotify/etsdb
-    _rel/etsdb/bin/etsdb
+    # /etc/init.d/etsdb start
 
 # Configuration
 
