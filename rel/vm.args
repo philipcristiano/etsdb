@@ -1,1 +1,1 @@
--name etsdb
+-name etsdb@`hostname -f`
