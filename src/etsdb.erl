@@ -30,7 +30,7 @@ write(Key, TS, Value) ->
 
     Message = {write, Key, TS, Value},
     % run_command([Pref], Message),
-    riak_core_vnode_master:command(PrefList, Message, etsdb_vnode_master),
+    run_command(PrefList, Message),
     ok.
 
 list() ->
