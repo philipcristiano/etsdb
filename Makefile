@@ -4,7 +4,7 @@ PKG_REVISION ?= $(shell git describe --tags)
 PKG_VERSION	?= $(shell git describe --tags | tr - .)
 
 DEPS = leveltsdb riak_core cowboy jsx recon
-dep_leveltsdb = git https://github.com/philipcristiano/leveltsdb.git 0.1.2
+dep_leveltsdb = git https://github.com/philipcristiano/leveltsdb.git 0.1.5
 dep_riak_core = git https://github.com/basho/riak_core 2.0.2
 PKG_REVISION ?= $(shell git describe --tags)
 PKG_VERSION	?= $(shell git describe --tags | tr - .)

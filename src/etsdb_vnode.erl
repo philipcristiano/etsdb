@@ -86,8 +86,8 @@ handle_command(_Message, _Sender, State) ->
 handle_handoff_command(?FOLD_REQ{foldfun = Fun, acc0=Acc0},
                        _Sender, State=#state{dbref=DBRef}) ->
     io:format("FOLDREQ ~p~n", [State]),
-    F = fun({Key,Val}, Acc) -> Fun(Key, Val, Acc) end,
-    Acc = eleveldb:fold(DBRef, F, Acc0, []),
+    F = fun({Metric, TS ,Val}, Acc) -> Fun({Metric, TS}, Val, Acc) end,
+    Acc = leveltsdb:fold_data(DBRef, F, Acc0),
     %% Acc = dict:fold(Fun, Acc0, State#state.store),
     {reply, Acc, State};
 handle_handoff_command(_Message, _Sender, State) ->
@@ -106,8 +106,8 @@ handoff_finished(_TargetNode, State) ->
     {ok, State}.
 
 handle_handoff_data(_Data, State=#state{dbref=DBRef}) ->
-    {Key, Value} = erlang:binary_to_term(_Data),
-    etsdb:write_to_db(DBRef, Key, Value),
+    {{Metric, TS}, Value} = erlang:binary_to_term(_Data),
+    leveltsdb:write(DBRef, Metric, TS, Value),
     {reply, ok, State}.
 
 encode_handoff_item(_ObjectName, _ObjectValue) ->
