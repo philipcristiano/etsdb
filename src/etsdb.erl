@@ -55,7 +55,7 @@ data(Key, Start, Stop, Opts) ->
     [Pref] = riak_core_apl:get_apl(HashKey, NVal, etsdb),
 
     Message = {data, Key, Start, Stop, Opts},
-    riak_core_vnode_master:sync_command(Pref, Message, etsdb_vnode_master).
+    riak_core_vnode_master:sync_spawn_command(Pref, Message, etsdb_vnode_master).
 
 keys() ->
     HashKey = chash:key_of(<<"">>),
