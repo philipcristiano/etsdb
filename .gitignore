@@ -3,6 +3,7 @@ deps
 *.o
 *.beam
 *.plt
+*.pyc
 data/
 data_2/
 data_3/
